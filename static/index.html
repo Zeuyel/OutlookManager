@@ -34,7 +34,7 @@
             margin-bottom: 10px;
             text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
-        
+
         .card {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 16px;
@@ -533,6 +533,17 @@
             margin-bottom: 16px;
             border: 1px solid #bbf7d0;
         }
+
+        .global-message {
+            position: fixed;
+            top: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            min-width: min(420px, calc(100vw - 32px));
+            margin: 0;
+            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+        }
         
         .pagination {
             display: flex;
@@ -709,6 +720,31 @@
             background: #f8fafc;
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .account-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .stat-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            color: #475569;
+            font-size: 12px;
+            line-height: 1;
+        }
+
+        .stat-chip strong {
+            color: #0f172a;
+            font-weight: 700;
         }
         
         .account-header {
@@ -1317,35 +1353,689 @@
         .email-content {
             position: relative;
         }
+
+        /* 2026-03-31 从零重构：Sidebar目录 + 主区浏览（shadcn风格） */
+        :root {
+            --ui-bg: #f5f6f8;
+            --ui-surface: #ffffff;
+            --ui-surface-soft: #f8fafc;
+            --ui-border: #e2e8f0;
+            --ui-text: #1f2937;
+            --ui-muted: #6b7280;
+            --ui-primary: #2563eb;
+            --ui-primary-hover: #1d4ed8;
+            --ui-danger: #b91c1c;
+        }
+
+        body {
+            font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: var(--ui-bg);
+            color: var(--ui-text);
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .header {
+            display: none !important;
+        }
+
+        .card {
+            background: transparent;
+            border: 0;
+            border-radius: 0;
+            box-shadow: none;
+            padding: 0;
+            margin: 0;
+            backdrop-filter: none;
+        }
+
+        input, select, textarea {
+            border: 1px solid var(--ui-border);
+            border-radius: 6px;
+            background: #fff;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--ui-primary);
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.14);
+        }
+
+        .btn {
+            border-radius: 6px;
+            border: 1px solid transparent;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 12px;
+            margin-right: 4px;
+            margin-bottom: 4px;
+            transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+        }
+
+        .btn-primary {
+            background: var(--ui-primary);
+            border-color: var(--ui-primary);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--ui-primary-hover);
+            border-color: var(--ui-primary-hover);
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: #fff;
+            color: #374151;
+            border-color: var(--ui-border);
+        }
+
+        .btn-secondary:hover {
+            background: #f9fafb;
+            border-color: #c4ceda;
+        }
+
+        .btn-danger {
+            background: #fff5f5;
+            border-color: #f3c7c7;
+            color: var(--ui-danger);
+        }
+
+        .btn-danger:hover {
+            background: #fee2e2;
+        }
+
+        .sidebar-header {
+            margin-bottom: 10px;
+            padding: 4px 2px;
+        }
+
+        .sidebar-header h2 {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #111827;
+            letter-spacing: 0.2px;
+        }
+
+        .sidebar-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 12px;
+        }
+
+        .sidebar-nav-item {
+            width: 100%;
+            text-align: left;
+            border: 1px solid transparent;
+            background: transparent;
+            color: #475569;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 10px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .sidebar-nav-item:hover {
+            background: #eef2f7;
+            color: #1f2937;
+            border-color: #dbe3ec;
+        }
+
+        .sidebar-nav-item.active {
+            background: #e8eefc;
+            border-color: #c9d8f5;
+            color: #1e3a8a;
+        }
+
+        .sidebar-panels {
+            min-height: 0;
+        }
+
+        .sidebar-panel {
+            border: 1px solid var(--ui-border);
+            border-radius: 8px;
+            background: var(--ui-surface);
+            padding: 10px;
+        }
+
+        .account-header,
+        .account-toolbar {
+            background: var(--ui-surface-soft);
+            border: 1px solid var(--ui-border);
+            border-radius: 6px;
+            padding: 8px 10px;
+            margin-bottom: 10px;
+            box-shadow: none;
+        }
+
+        .account-count,
+        .email-count {
+            background: #eef4ff;
+            color: #1e40af;
+            border-radius: 999px;
+        }
+
+        .account-stats {
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .stat-chip {
+            background: var(--ui-surface-soft);
+            border: 1px solid var(--ui-border);
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 12px;
+            color: #4b5563;
+        }
+
+        .account-list {
+            border: 1px solid var(--ui-border);
+            border-radius: 6px;
+            box-shadow: none;
+        }
+
+        .account-item {
+            background: #fff;
+            border-bottom: 1px solid #e6ebf2;
+            border-radius: 0;
+            animation: none;
+            transition: background-color 0.12s ease;
+        }
+
+        .account-item:nth-child(even) {
+            background: #fff;
+        }
+
+        .account-item:hover {
+            background: #f8fafc;
+            border-color: transparent;
+        }
+
+        .account-email {
+            color: #111827;
+            font-weight: 500;
+        }
+
+        .account-email:hover {
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        .account-status {
+            font-size: 11px;
+            min-width: 54px;
+        }
+
+        .status-active { background: #ecfdf3; color: #166534; }
+        .status-inactive { background: #fef2f2; color: #991b1b; }
+        .status-unknown { background: #f3f4f6; color: #374151; }
+
+        .panel-hint {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 12px;
+            color: var(--ui-muted);
+        }
+
+        .search-container {
+            width: 260px;
+        }
+
+        .search-container input {
+            padding-left: 10px;
+            width: 100%;
+        }
+
+        .search-container input:focus {
+            width: 100%;
+        }
+
+        .pagination .btn {
+            min-width: 58px;
+        }
+
+        .verification-summary,
+        .verification-header,
+        .verification-item {
+            border-radius: 6px;
+            border-color: var(--ui-border);
+        }
+
+        /* App Shell：可折叠Sidebar + 主内容路由 */
+        .app-shell {
+            display: grid;
+            grid-template-columns: 248px minmax(0, 1fr);
+            min-height: 100vh;
+            background: var(--ui-bg);
+        }
+
+        .app-shell.sidebar-collapsed {
+            grid-template-columns: 72px minmax(0, 1fr);
+        }
+
+        .app-sidebar {
+            border-right: 1px solid var(--ui-border);
+            background: #f8fafc;
+            padding: 12px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .sidebar-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 2px 4px;
+        }
+
+        .sidebar-title {
+            font-size: 12px;
+            color: var(--ui-muted);
+            font-weight: 600;
+            letter-spacing: 0.25px;
+        }
+
+        .sidebar-toggle {
+            border: 1px solid var(--ui-border);
+            background: #fff;
+            color: #374151;
+            border-radius: 6px;
+            font-size: 12px;
+            padding: 4px 8px;
+            cursor: pointer;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .sidebar-nav-item {
+            width: 100%;
+            border: 1px solid transparent;
+            background: transparent;
+            color: #475569;
+            border-radius: 6px;
+            padding: 8px 10px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .sidebar-nav-item:hover {
+            background: #edf2f8;
+            border-color: #dbe3ee;
+            color: #1f2937;
+        }
+
+        .sidebar-nav-item.active {
+            background: #e8eefc;
+            border-color: #c9d8f5;
+            color: #1e3a8a;
+        }
+
+        .nav-short {
+            display: none;
+        }
+
+        .app-shell.sidebar-collapsed .sidebar-title,
+        .app-shell.sidebar-collapsed .nav-text {
+            display: none;
+        }
+
+        .app-shell.sidebar-collapsed .nav-short {
+            display: inline;
+        }
+
+        .app-shell.sidebar-collapsed .sidebar-nav-item {
+            text-align: center;
+            padding: 8px 6px;
+        }
+
+        .app-main {
+            background: var(--ui-surface);
+            min-height: 100vh;
+            padding: 12px;
+            overflow: auto;
+        }
+
+        .module-page {
+            border: 1px solid var(--ui-border);
+            background: #fff;
+            border-radius: 8px;
+            padding: 12px;
+            min-height: calc(100vh - 24px);
+        }
+
+        .module-page.hidden {
+            display: none;
+        }
+
+        #browsePage.module-page,
+        #detailPage.module-page {
+            padding: 10px;
+        }
+
+        #browsePage .email-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+            margin: 0 0 12px 0;
+            padding: 0 0 10px 0;
+            border-bottom: 1px solid var(--ui-border);
+            background: transparent;
+        }
+
+        #browsePage .toolbar-right {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 6px;
+        }
+
+        #browsePage .dual-view-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            height: calc(100vh - 118px);
+            min-height: 0;
+            max-height: none;
+        }
+
+        #browsePage .email-column {
+            background: #fff;
+            border: 1px solid var(--ui-border);
+            border-radius: 8px;
+            padding: 10px;
+            height: 100%;
+            min-height: 0;
+        }
+
+        #browsePage .email-item {
+            border: 1px solid #e5ebf3;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            box-shadow: none;
+            background: #fff;
+            animation: none;
+        }
+
+        #browsePage .email-item::before,
+        #browsePage .email-item::after,
+        #browsePage .sender-avatar::after {
+            display: none !important;
+        }
+
+        #browsePage .email-item:hover {
+            border-color: #cfd9e8;
+            background: #f9fbff;
+            transform: none;
+        }
+
+        #browsePage .sender-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: #e5e7eb;
+            color: #374151;
+            font-size: 12px;
+            box-shadow: none;
+        }
+
+        #browsePage .email-preview {
+            font-style: normal;
+            color: #6b7280;
+        }
+
+        #browsePage .email-list {
+            max-height: none;
+            min-height: 0;
+        }
+
+        #detailPage.module-page {
+            overflow: auto;
+        }
+
+        .auth-page {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: minmax(320px, 42%) minmax(360px, 1fr);
+            background: #eef1f4;
+        }
+
+        .auth-page.hidden {
+            display: none;
+        }
+
+        .auth-brand {
+            background: #17211d;
+            color: #f7faf8;
+            padding: 56px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border-right: 1px solid #d8dde3;
+        }
+
+        .auth-brand-kicker {
+            color: #a9b7af;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+        }
+
+        .auth-brand h1 {
+            max-width: 520px;
+            margin: 18px 0 14px;
+            color: #fff;
+            font-size: 34px;
+            line-height: 1.18;
+            font-weight: 650;
+        }
+
+        .auth-brand p {
+            max-width: 480px;
+            color: #cad3ce;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .auth-meta {
+            display: grid;
+            gap: 10px;
+            color: #dce5df;
+            font-size: 13px;
+        }
+
+        .auth-meta span {
+            border-top: 1px solid rgba(255, 255, 255, 0.13);
+            padding-top: 10px;
+        }
+
+        .auth-panel {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 28px;
+        }
+
+        #adminLoginCard {
+            width: min(420px, 100%);
+            padding: 0;
+            background: transparent;
+            border: 0;
+            border-radius: 0;
+        }
+
+        #adminLoginCard h2 {
+            margin: 0 0 8px;
+            color: #111827;
+            font-size: 24px;
+            font-weight: 650;
+        }
+
+        #adminLoginCard .auth-copy {
+            color: #64748b;
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+
+        #adminLoginCard .input-group {
+            margin-bottom: 18px;
+        }
+
+        #adminLoginCard input {
+            height: 42px;
+        }
+
+        #adminLoginCard .btn {
+            width: 100%;
+            height: 42px;
+        }
+
+        @media (max-width: 1100px) {
+            .auth-page {
+                grid-template-columns: 1fr;
+            }
+
+            .auth-brand {
+                min-height: 260px;
+                padding: 32px 24px;
+            }
+
+            .auth-brand h1 {
+                font-size: 26px;
+            }
+
+            .auth-panel {
+                align-items: flex-start;
+                padding: 34px 20px;
+            }
+
+            .app-shell,
+            .app-shell.sidebar-collapsed {
+                grid-template-columns: 1fr;
+            }
+
+            .app-sidebar {
+                border-right: 0;
+                border-bottom: 1px solid var(--ui-border);
+            }
+
+            .app-shell.sidebar-collapsed .sidebar-title,
+            .app-shell.sidebar-collapsed .nav-text {
+                display: inline;
+            }
+
+            .app-shell.sidebar-collapsed .nav-short {
+                display: none;
+            }
+
+            .app-shell.sidebar-collapsed .sidebar-nav-item {
+                text-align: left;
+                padding: 8px 10px;
+            }
+
+            .app-main {
+                padding: 10px;
+            }
+
+            .module-page {
+                min-height: auto;
+                padding: 10px;
+            }
+
+            #browsePage .dual-view-container {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+
+            #browsePage .email-column {
+                min-height: 320px;
+                height: auto;
+            }
+
+            .account-actions {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+
+            .search-container {
+                width: 100%;
+            }
+        }
+
+        svg,
+        .search-icon,
+        .copy-button-icon,
+        .attachment-icon,
+        .summary-icon {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>📧 Outlook邮件客户端</h1>
+        <div id="authPage" class="auth-page">
+            <section class="auth-brand">
+                <div>
+                    <div class="auth-brand-kicker">OUTLOOK MANAGER</div>
+                    <h1>企业邮箱账户与邮件内容管理后台</h1>
+                    <p>统一管理单账户登录、批量验证、账户状态维护和邮件内容浏览。登录后进入后台工作台。</p>
+                </div>
+                <div class="auth-meta">
+                    <span>管理员认证</span>
+                    <span>账户状态同步</span>
+                    <span>邮件双栏浏览</span>
+                </div>
+            </section>
+
+            <section class="auth-panel">
+                <div id="adminLoginCard" class="card">
+                    <h2>管理员登录</h2>
+                    <p class="auth-copy">请输入管理密码以访问邮件系统</p>
+                    
+                    <div class="input-group">
+                        <label>管理密码</label>
+                        <input type="password" id="adminPassword" placeholder="请输入管理密码" onkeypress="handleAdminPasswordKeyPress(event)">
+                    </div>
+                    <button class="btn btn-primary" onclick="adminLogin()">验证登录</button>
+                </div>
+            </section>
         </div>
 
-        <div id="adminLoginCard" class="card">
-            <h2>🔐 管理员登录</h2>
-            <p style="color: #64748b; margin-bottom: 20px;">请输入管理密码以访问邮件系统</p>
-            
-            <div class="input-group">
-                <label>管理密码</label>
-                <input type="password" id="adminPassword" placeholder="请输入管理密码" onkeypress="handleAdminPasswordKeyPress(event)">
+        <div id="appShell" class="app-shell hidden">
+        <aside class="app-sidebar">
+            <div class="sidebar-top">
+                <span class="sidebar-title">导航菜单</span>
+                <button id="sidebarToggleBtn" class="sidebar-toggle" onclick="toggleSidebar()">收起</button>
             </div>
-            <button class="btn btn-primary" onclick="adminLogin()">🔑 验证登录</button>
-        </div>
+            <nav class="sidebar-nav">
+                <button class="sidebar-nav-item active" data-module="single" onclick="switchModule('single')"><span class="nav-text">单账户登录</span><span class="nav-short">单</span></button>
+                <button class="sidebar-nav-item" data-module="batch" onclick="switchModule('batch')"><span class="nav-text">批量登录</span><span class="nav-short">批</span></button>
+                <button class="sidebar-nav-item" data-module="manage" onclick="switchModule('manage')"><span class="nav-text">账户管理</span><span class="nav-short">管</span></button>
+                <button class="sidebar-nav-item" data-module="browse" onclick="switchModule('browse')"><span class="nav-text">邮件浏览</span><span class="nav-short">邮</span></button>
+            </nav>
+        </aside>
 
-        <div id="loginCard" class="card hidden">
-            <h2>账户配置</h2>
-            
-            <div class="login-tabs">
-                <button class="tab-btn active" onclick="switchTab('single')">单账户登录</button>
-                <button class="tab-btn" onclick="switchTab('batch')">批量登录</button>
-                <button class="tab-btn" onclick="switchTab('manage')">账户管理</button>
-            </div>
-
-            <div id="singleLogin" class="tab-content">
+        <main class="app-main">
+            <section id="singleLogin" class="module-page">
                 <div class="input-group">
                     <label>邮箱地址</label>
                     <input type="email" id="email" placeholder="example@outlook.com">
@@ -1359,9 +2049,9 @@
                     <input type="text" id="clientId" placeholder="Azure应用的client_id">
                 </div>
                 <button class="btn btn-primary" onclick="login()">验证并登录</button>
-            </div>
+            </section>
 
-            <div id="batchLogin" class="tab-content hidden">
+            <section id="batchLogin" class="module-page hidden">
                 <div class="batch-header">
                     <h3>批量验证账户</h3>
                     <p class="batch-description">每行一个账户，格式：邮箱----密码----刷新令牌----客户端ID</p>
@@ -1369,26 +2059,18 @@
                 <div class="input-group">
                     <textarea id="batchAccounts" rows="8" placeholder="example@outlook.com----password----refresh_token----client_id"></textarea>
                 </div>
-                <button class="btn btn-primary btn-with-icon" onclick="verifyBatchAccounts()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                    验证账户
-                </button>
+                <button class="btn btn-primary" onclick="verifyBatchAccounts()">验证账户</button>
                 <div id="verificationResultList" class="verification-results"></div>
-            </div>
+            </section>
 
-            <div id="accountManage" class="tab-content hidden">
+            <section id="accountManage" class="module-page hidden">
                 <div class="account-header">
                     <h3 class="account-title">账户管理 <span class="account-count" id="accountCount">0</span></h3>
                     <div class="account-actions">
-                        <button class="btn btn-icon" onclick="loadAccountList(true)" title="刷新状态">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
-                        </button>
-                        <button class="btn btn-icon btn-danger" onclick="deleteSelectedAccounts()" title="删除选中">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-                        </button>
+                        <button class="btn btn-secondary" onclick="loadAccountList(true)" title="刷新状态">刷新状态</button>
+                        <button class="btn btn-secondary btn-danger" onclick="deleteSelectedAccounts()" title="删除选中">删除选中</button>
                         <div class="search-container">
-                            <input type="text" id="accountSearch" placeholder="搜索账户..." onkeyup="filterAccounts()">
-                            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <input type="text" id="accountSearch" placeholder="搜索账户..." oninput="scheduleFilterAccounts()">
                         </div>
                     </div>
                 </div>
@@ -1406,19 +2088,24 @@
                         </label>
                     </div>
                 </div>
+                <div class="account-stats" id="accountStats">
+                    <span class="stat-chip">可见 <strong id="visibleAccountCount">0</strong></span>
+                    <span class="stat-chip">已选 <strong id="selectedAccountCount">0</strong></span>
+                    <span class="stat-chip">有效 <strong id="activeAccountCount">0</strong></span>
+                </div>
                 <div id="accountList" class="account-list loading">
                     <p>加载中...</p>
                 </div>
                 <div class="account-info">
                     <p>提示: 点击账户邮箱可直接登录该账户</p>
                 </div>
-            </div>
-        </div>
+            </section>
 
-        <div id="emailCard" class="card hidden">
+        <section id="browsePage" class="module-page hidden">
             <div class="email-toolbar">
                 <div class="toolbar-left">
-                    <h2>📧 邮件管理</h2>
+                    <h2>邮件内容浏览</h2>
+                    <span class="panel-hint">账号选择区与邮件内容区</span>
                     <span id="userEmail" class="user-email"></span>
                 </div>
                 <div class="toolbar-right">
@@ -1427,8 +2114,7 @@
                             <option value="">选择邮箱...</option>
                         </select>
                     </div>
-                    <button class="btn btn-secondary" onclick="loadDualEmails(true)">🔄 刷新</button>
-                    <button class="btn btn-secondary" onclick="backToAccountManage()">📋 账户管理</button>
+                    <button class="btn btn-secondary" onclick="loadDualEmails(true)">刷新</button>
                     <button class="btn btn-secondary" onclick="logout()">退出登录</button>
                 </div>
             </div>
@@ -1436,7 +2122,7 @@
             <div class="dual-view-container">
                 <div class="email-column">
                     <div class="column-header">
-                        <h3>📥 收件箱</h3>
+                        <h3>收件箱</h3>
                         <span id="inboxCount" class="email-count">0</span>
                     </div>
                     <div id="inboxList" class="email-list loading">
@@ -1447,7 +2133,7 @@
 
                 <div class="email-column">
                     <div class="column-header">
-                        <h3>🗑️ 垃圾邮件</h3>
+                        <h3>垃圾邮件</h3>
                         <span id="junkCount" class="email-count">0</span>
                     </div>
                     <div id="junkList" class="email-list loading">
@@ -1456,11 +2142,13 @@
                     <div id="junkPagination" class="pagination hidden"></div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <div id="detailCard" class="card hidden">
-            <button class="btn btn-secondary" onclick="backToList()">← 返回列表</button>
+        <section id="detailPage" class="module-page hidden">
+            <button class="btn btn-secondary" onclick="backToList()">返回列表</button>
             <div id="emailDetail" class="email-detail"></div>
+        </section>
+        </main>
         </div>
     </div>
 
@@ -1471,6 +2159,13 @@
         let totalEmails = 0;
         let savedAccounts = JSON.parse(localStorage.getItem('savedAccounts') || '{}');
         let adminPassword = localStorage.getItem('adminPassword');
+        let accountSearchDebounceTimer = null;
+        const moduleMap = {
+            single: 'singleLogin',
+            batch: 'batchLogin',
+            manage: 'accountManage',
+            browse: 'browsePage'
+        };
 
         function formatEmailDate(dateString) {
             try {
@@ -1514,25 +2209,137 @@
         }
 
         function showError(msg) {
-            const existing = document.querySelector('.error');
+            const existing = document.querySelector('.global-message');
             if (existing) existing.remove();
             
             const error = document.createElement('div');
-            error.className = 'error';
+            error.className = 'error global-message';
             error.textContent = msg;
-            document.querySelector('.container').insertBefore(error, document.querySelector('.card'));
+            document.body.appendChild(error);
             setTimeout(() => error.remove(), 5000);
         }
 
         function showSuccess(msg) {
-            const existing = document.querySelector('.success');
+            const existing = document.querySelector('.global-message');
             if (existing) existing.remove();
             
             const success = document.createElement('div');
-            success.className = 'success';
+            success.className = 'success global-message';
             success.textContent = msg;
-            document.querySelector('.container').insertBefore(success, document.querySelector('.card'));
+            document.body.appendChild(success);
             setTimeout(() => success.remove(), 3000);
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function findAccountItemByEmail(email) {
+            const items = document.querySelectorAll('#accountList .account-item');
+            for (const item of items) {
+                if (item.dataset.email === email) {
+                    return item;
+                }
+            }
+            return null;
+        }
+
+        function setupAccountListInteractions() {
+            const container = document.getElementById('accountList');
+            if (!container || container.dataset.bound === 'true') {
+                return;
+            }
+
+            container.addEventListener('click', (event) => {
+                const target = event.target.closest('.account-email-action');
+                if (!target) {
+                    return;
+                }
+                loginWithAccount(target.dataset.email);
+            });
+
+            container.addEventListener('keydown', (event) => {
+                if (event.key !== 'Enter' && event.key !== ' ') {
+                    return;
+                }
+                const target = event.target.closest('.account-email-action');
+                if (!target) {
+                    return;
+                }
+                event.preventDefault();
+                loginWithAccount(target.dataset.email);
+            });
+
+            container.addEventListener('change', (event) => {
+                if (event.target.classList.contains('account-checkbox')) {
+                    updateAccountStats();
+                }
+            });
+
+            container.dataset.bound = 'true';
+        }
+
+        function scheduleFilterAccounts() {
+            if (accountSearchDebounceTimer) {
+                clearTimeout(accountSearchDebounceTimer);
+            }
+            accountSearchDebounceTimer = setTimeout(filterAccounts, 150);
+        }
+
+        function updateAccountStats() {
+            const items = Array.from(document.querySelectorAll('#accountList .account-item'));
+            const visibleItems = items.filter(item => !item.classList.contains('filtered'));
+            const selectedCount = visibleItems.filter(item => {
+                const checkbox = item.querySelector('.account-checkbox');
+                return checkbox && checkbox.checked;
+            }).length;
+            const activeCount = visibleItems.filter(item => item.dataset.status === 'active').length;
+
+            const visibleCountElement = document.getElementById('visibleAccountCount');
+            const selectedCountElement = document.getElementById('selectedAccountCount');
+            const activeCountElement = document.getElementById('activeAccountCount');
+
+            if (visibleCountElement) visibleCountElement.textContent = String(visibleItems.length);
+            if (selectedCountElement) selectedCountElement.textContent = String(selectedCount);
+            if (activeCountElement) activeCountElement.textContent = String(activeCount);
+        }
+
+        function syncSavedAccountsWithServer(accounts) {
+            const serverEmails = new Set(accounts.map(account => account.email));
+            let hasChanges = false;
+
+            for (const email of Object.keys(savedAccounts)) {
+                if (!serverEmails.has(email)) {
+                    delete savedAccounts[email];
+                    hasChanges = true;
+                }
+            }
+
+            if (hasChanges) {
+                localStorage.setItem('savedAccounts', JSON.stringify(savedAccounts));
+            }
+        }
+
+        function renderEmailWorkspaceEmpty(message = '请先在左侧选择账号，然后浏览邮件内容') {
+            const inboxList = document.getElementById('inboxList');
+            const junkList = document.getElementById('junkList');
+            const inboxCount = document.getElementById('inboxCount');
+            const junkCount = document.getElementById('junkCount');
+            const inboxPagination = document.getElementById('inboxPagination');
+            const junkPagination = document.getElementById('junkPagination');
+
+            document.getElementById('userEmail').textContent = currentUser || '未选择账号';
+            inboxList.innerHTML = `<div class="loading"><p>${message}</p></div>`;
+            junkList.innerHTML = `<div class="loading"><p>${message}</p></div>`;
+            inboxCount.textContent = '0';
+            junkCount.textContent = '0';
+            inboxPagination.classList.add('hidden');
+            junkPagination.classList.add('hidden');
         }
 
         // ============================================================================
@@ -1587,42 +2394,88 @@
             }
         }
         
+        function updateSidebarToggleText() {
+            const shell = document.getElementById('appShell');
+            const button = document.getElementById('sidebarToggleBtn');
+            if (!shell || !button) return;
+            button.textContent = shell.classList.contains('sidebar-collapsed') ? '展开' : '收起';
+        }
+
+        function applySidebarState() {
+            const shell = document.getElementById('appShell');
+            if (!shell) return;
+            const collapsed = localStorage.getItem('sidebarCollapsed') === '1';
+            shell.classList.toggle('sidebar-collapsed', collapsed);
+            updateSidebarToggleText();
+        }
+
+        function toggleSidebar() {
+            const shell = document.getElementById('appShell');
+            if (!shell) return;
+            const collapsed = !shell.classList.contains('sidebar-collapsed');
+            shell.classList.toggle('sidebar-collapsed', collapsed);
+            localStorage.setItem('sidebarCollapsed', collapsed ? '1' : '0');
+            updateSidebarToggleText();
+        }
+
+        function switchModule(module, options = {}) {
+            const targetModule = moduleMap[module] ? module : 'single';
+            const targetSectionId = moduleMap[targetModule];
+            const skipLoad = options.skipLoad === true;
+
+            document.querySelectorAll('.sidebar-nav-item').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.module === targetModule);
+            });
+
+            Object.values(moduleMap).forEach(sectionId => {
+                const section = document.getElementById(sectionId);
+                if (section) section.classList.add('hidden');
+            });
+
+            const detailPage = document.getElementById('detailPage');
+            if (detailPage) detailPage.classList.add('hidden');
+
+            const targetSection = document.getElementById(targetSectionId);
+            if (targetSection) targetSection.classList.remove('hidden');
+
+            localStorage.setItem('activeModule', targetModule);
+
+            if (skipLoad) {
+                return;
+            }
+
+            if (targetModule === 'manage') {
+                loadAccountList();
+            } else if (targetModule === 'browse') {
+                loadAccountSwitcher();
+                if (currentUser) {
+                    document.getElementById('userEmail').textContent = currentUser;
+                    loadDualEmails(false);
+                } else {
+                    renderEmailWorkspaceEmpty();
+                }
+            }
+        }
+
         function showAdminLogin() {
-            document.getElementById('adminLoginCard').classList.remove('hidden');
-            document.getElementById('loginCard').classList.add('hidden');
-            document.getElementById('emailCard').classList.add('hidden');
-            document.getElementById('detailCard').classList.add('hidden');
+            document.getElementById('authPage').classList.remove('hidden');
+            document.getElementById('appShell').classList.add('hidden');
+            document.getElementById('detailPage').classList.add('hidden');
             document.getElementById('adminPassword').focus();
         }
         
         function showEmailManagement() {
-            document.getElementById('adminLoginCard').classList.add('hidden');
-            document.getElementById('loginCard').classList.remove('hidden');
-            
-            // 切换到账户管理标签页并加载账户列表
-            switchTab('manage');
-            loadAccountList();
+            document.getElementById('authPage').classList.add('hidden');
+            document.getElementById('appShell').classList.remove('hidden');
+            applySidebarState();
+            switchModule('manage');
+            loadAccountSwitcher();
+            renderEmailWorkspaceEmpty();
         }
 
+        // 兼容旧调用
         function switchTab(tab) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
-            
-            // 找到对应的按钮并激活
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                if (btn.textContent === (tab === 'single' ? '单账户登录' : tab === 'batch' ? '批量登录' : '账户管理')) {
-                    btn.classList.add('active');
-                }
-            });
-            
-            // 显示对应的内容区域
-            const contentId = tab === 'single' ? 'singleLogin' : tab === 'batch' ? 'batchLogin' : 'accountManage';
-            document.getElementById(contentId).classList.remove('hidden');
-            
-            // 如果切换到账户管理标签，自动加载账户列表
-            if (tab === 'manage' && document.getElementById('accountList').children.length <= 1) {
-                loadAccountList();
-            }
+            switchModule(tab);
         }
 
         async function makeRequest(url, options = {}) {
@@ -1717,7 +2570,7 @@
             }
             
             if (accounts.length === 0) {
-                resultList.innerHTML = '<div class="verification-empty"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg><p>无法解析账户信息，请检查格式</p></div>';
+                resultList.innerHTML = '<div class="verification-empty"><p>无法解析账户信息，请检查格式</p></div>';
                 return;
             }
             
@@ -1733,7 +2586,7 @@
                 renderVerificationResult(results);
                 
             } catch (error) {
-                resultList.innerHTML = `<div class="verification-empty"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg><p>验证失败: ${error.message}</p></div>`;
+                resultList.innerHTML = `<div class="verification-empty"><p>验证失败: ${error.message}</p></div>`;
             }
         }
         
@@ -1798,7 +2651,7 @@
             const container = document.getElementById('verificationResultList');
             
             if (results.length === 0) {
-                container.innerHTML = '<div class="verification-empty"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg><p>未找到账户</p></div>';
+                container.innerHTML = '<div class="verification-empty"><p>未找到账户</p></div>';
                 return;
             }
             
@@ -1806,11 +2659,6 @@
             const failCount = results.length - successCount;
             
             let html = `<div class="verification-summary ${successCount > 0 ? 'has-success' : 'all-failed'}">
-                <div class="summary-icon">
-                    ${successCount > 0 ? 
-                    '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>' : 
-                    '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>'}
-                </div>
                 <div class="summary-text">
                     <h4>验证结果</h4>
                     <p>${successCount} 个成功, ${failCount} 个失败</p>
@@ -1840,12 +2688,7 @@
                     </div>
                     <div class="verification-email">${result.email}</div>
                     <div class="verification-status">
-                        <span class="verification-badge ${isSuccess ? 'success' : 'error'}">
-                            ${isSuccess ? 
-                            '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>' : 
-                            '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>'}
-                            ${isSuccess ? '验证成功' : '验证失败'}
-                        </span>
+                        <span class="verification-badge ${isSuccess ? 'success' : 'error'}">${isSuccess ? '验证成功' : '验证失败'}</span>
                         ${!isSuccess ? `<div class="verification-error-message">${result.message}</div>` : ''}
                     </div>
                 </div>
@@ -1857,7 +2700,6 @@
                 html += `
                 <div class="verification-actions">
                     <button class="btn btn-primary verification-import-btn" onclick="importSelectedAccounts()">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
                         导入选中账户
                     </button>
                 </div>
@@ -1888,6 +2730,7 @@
                 if (!response.ok) throw new Error('获取账户列表失败');
                 
                 const accounts = await response.json();
+                syncSavedAccountsWithServer(accounts);
                 renderAccountList(accounts);
                 
                 // 更新账户数量显示
@@ -1895,6 +2738,7 @@
                 
             } catch (error) {
                 accountList.innerHTML = `<div class="error">加载失败: ${error.message}</div>`;
+                updateAccountStats();
             }
         }
         
@@ -1904,12 +2748,14 @@
             if (accounts.length === 0) {
                 container.className = 'account-list';
                 container.innerHTML = '<div class="error">暂无账户，请先添加账户</div>';
+                updateAccountStats();
                 return;
             }
             
             let html = '';
             
             accounts.forEach((account, index) => {
+                const safeEmail = escapeHtml(account.email);
                 const statusClass = account.status === 'active' ? 'status-active' : 
                                    account.status === 'inactive' ? 'status-inactive' : 'status-unknown';
                 const statusText = account.status === 'active' ? '有效' : 
@@ -1919,9 +2765,9 @@
                 const delay = index * 50;
                 
                 html += `
-                <div class="account-item" data-email="${account.email}" data-status="${account.status}" style="animation-delay: ${delay}ms;">
-                    <input type="checkbox" class="account-checkbox" data-email="${account.email}">
-                    <span class="account-email" onclick="loginWithAccount('${account.email}')">${account.email}</span>
+                <div class="account-item" data-email="${safeEmail}" data-status="${account.status}" style="animation-delay: ${delay}ms;">
+                    <input type="checkbox" class="account-checkbox" data-email="${safeEmail}">
+                    <span class="account-email account-email-action" data-email="${safeEmail}" role="button" tabindex="0">${safeEmail}</span>
                     <span class="account-status ${statusClass}">${statusText}</span>
                 </div>
                 `;
@@ -1932,6 +2778,7 @@
             
             // 重置全选框
             document.getElementById('selectAllAccounts').checked = false;
+            updateAccountStats();
         }
         
         function filterAccounts() {
@@ -1946,6 +2793,7 @@
                     item.classList.add('filtered');
                 }
             });
+            updateAccountStats();
         }
         
         function filterByStatus(status) {
@@ -1967,6 +2815,7 @@
                     item.classList.add('filtered');
                 }
             });
+            updateAccountStats();
         }
         
         function toggleSelectAll() {
@@ -1976,10 +2825,11 @@
             visibleCheckboxes.forEach(checkbox => {
                 checkbox.checked = isChecked;
             });
+            updateAccountStats();
         }
         
         function loginWithAccount(email) {
-            if (!savedAccounts[email]) {
+            if (!email) {
                 showError('账户信息不存在');
                 return;
             }
@@ -2012,7 +2862,7 @@
             
             // 先添加视觉反馈
             emails.forEach(email => {
-                const item = document.querySelector(`.account-item[data-email="${email}"]`);
+                const item = findAccountItemByEmail(email);
                 if (item) {
                     item.style.opacity = '0.5';
                     item.style.background = '#fee2e2';
@@ -2044,7 +2894,7 @@
                 showError('删除账户失败: ' + error.message);
                 // 恢复视觉状态
                 emails.forEach(email => {
-                    const item = document.querySelector(`.account-item[data-email="${email}"]`);
+                    const item = findAccountItemByEmail(email);
                     if (item) {
                         item.style.opacity = '1';
                         item.style.background = '';
@@ -2060,13 +2910,16 @@
                 return;
             }
             
-            document.getElementById('loginCard').classList.add('hidden');
-            document.getElementById('emailCard').classList.remove('hidden');
+            document.getElementById('authPage').classList.add('hidden');
+            document.getElementById('appShell').classList.remove('hidden');
+            applySidebarState();
+            document.getElementById('detailPage').classList.add('hidden');
             document.getElementById('userEmail').textContent = currentUser;
             
             // 加载账户选择器
             loadAccountSwitcher();
             
+            switchModule('browse', { skipLoad: true });
             showSuccess(`已登录: ${currentUser}`);
             loadDualEmails(false);
         }
@@ -2089,6 +2942,11 @@
         let currentJunkPage = 1;
 
         async function loadDualEmails(forceRefresh = false) {
+            if (!currentUser) {
+                renderEmailWorkspaceEmpty();
+                return;
+            }
+
             const inboxList = document.getElementById('inboxList');
             const junkList = document.getElementById('junkList');
             
@@ -2131,7 +2989,7 @@
 
         function createEmailItem(email) {
             const readStatus = email.is_read ? 'read' : 'unread';
-            const attachmentIcon = email.has_attachments ? '<span class="attachment-icon">📎</span>' : '';
+            const attachmentIcon = '';
             
             return `
                 <div class="email-item" onclick="showEmailDetail('${email.message_id}')">
@@ -2150,7 +3008,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="email-from">📧 ${email.from_email}</div>
+                            <div class="email-from">${email.from_email}</div>
                             <div class="email-preview">点击查看邮件详情...</div>
                         </div>
                     </div>
@@ -2207,13 +3065,9 @@
                 return `
                     <div class="email-content-header">
                         <div class="content-type-tabs">
-                            <button class="content-tab active" onclick="showHtmlContent()" id="htmlTab">
-                                🎨 HTML视图
-                            </button>
-                            ${hasPlain ? '<button class="content-tab" onclick="showPlainContent()" id="plainTab">📝 纯文本</button>' : ''}
-                            <button class="content-tab" onclick="showRawContent()" id="rawTab">
-                                🔍 源码
-                            </button>
+                            <button class="content-tab active" onclick="showHtmlContent()" id="htmlTab">HTML视图</button>
+                            ${hasPlain ? '<button class="content-tab" onclick="showPlainContent()" id="plainTab">纯文本</button>' : ''}
+                            <button class="content-tab" onclick="showRawContent()" id="rawTab">源码</button>
                         </div>
                     </div>
                     
@@ -2226,25 +3080,13 @@
                     
                     ${hasPlain ? `
                     <div id="plainContent" class="email-content plain-content hidden">
-                        <button class="copy-button" onclick="copyToClipboard('plainContent')">
-                            <svg class="copy-button-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                            </svg>
-                            复制内容
-                        </button>
+                        <button class="copy-button" onclick="copyToClipboard('plainContent')">复制内容</button>
                         <pre style="white-space: pre-wrap; font-family: inherit;">${email.body_plain}</pre>
                     </div>
                     ` : ''}
                     
                     <div id="rawContent" class="email-content raw-content hidden">
-                        <button class="copy-button" onclick="copyToClipboard('rawContent')">
-                            <svg class="copy-button-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                            </svg>
-                            复制源码
-                        </button>
+                        <button class="copy-button" onclick="copyToClipboard('rawContent')">复制源码</button>
                         <pre style="background: #1e293b; color: #e2e8f0; padding: 16px; border-radius: 8px; overflow-x: auto; font-size: 12px;">${email.body_html.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
                     </div>
                 `;
@@ -2252,13 +3094,7 @@
                 // 只有纯文本
                 return `
                     <div class="email-content plain-content">
-                        <button class="copy-button" onclick="copyToClipboard('plainContent')">
-                            <svg class="copy-button-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                            </svg>
-                            复制内容
-                        </button>
+                        <button class="copy-button" onclick="copyToClipboard('plainContent')">复制内容</button>
                         <pre style="white-space: pre-wrap; font-family: inherit; line-height: 1.6;">${email.body_plain}</pre>
                     </div>
                 `;
@@ -2302,12 +3138,7 @@
                     const originalText = copyButton.innerHTML;
                     
                     copyButton.classList.add('copied');
-                    copyButton.innerHTML = `
-                        <svg class="copy-button-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                        已复制
-                    `;
+                    copyButton.innerHTML = '已复制';
                     
                     // 2秒后恢复按钮状态
                     setTimeout(() => {
@@ -2324,8 +3155,9 @@
         }
 
         async function showEmailDetail(messageId) {
-            document.getElementById('emailCard').classList.add('hidden');
-            document.getElementById('detailCard').classList.remove('hidden');
+            switchModule('browse', { skipLoad: true });
+            document.getElementById('browsePage').classList.add('hidden');
+            document.getElementById('detailPage').classList.remove('hidden');
             
             const detailDiv = document.getElementById('emailDetail');
             detailDiv.innerHTML = '<div class="loading"><p>加载中...</p></div>';
@@ -2356,15 +3188,13 @@
         }
 
         function backToList() {
-            document.getElementById('detailCard').classList.add('hidden');
-            document.getElementById('emailCard').classList.remove('hidden');
+            document.getElementById('detailPage').classList.add('hidden');
+            document.getElementById('browsePage').classList.remove('hidden');
         }
         
         function backToAccountManage() {
-            document.getElementById('emailCard').classList.add('hidden');
-            document.getElementById('loginCard').classList.remove('hidden');
-            switchTab('manage');
-            loadAccountList();
+            document.getElementById('detailPage').classList.add('hidden');
+            switchModule('manage');
         }
         
         async function loadAccountSwitcher() {
@@ -2414,16 +3244,11 @@
                 return;
             }
             
-            if (!savedAccounts[selectedEmail]) {
-                showError('账户信息不存在，请返回账户管理重新添加');
-                switcher.value = currentUser; // 恢复原选择
-                return;
-            }
             
             // 添加切换动画
-            const emailCard = document.getElementById('emailCard');
-            emailCard.style.opacity = '0.5';
-            emailCard.style.transition = 'opacity 0.3s ease';
+            const browsePage = document.getElementById('browsePage');
+            browsePage.style.opacity = '0.5';
+            browsePage.style.transition = 'opacity 0.2s ease';
             
             try {
                 // 清除旧用户的缓存
@@ -2448,7 +3273,7 @@
                 showError('切换邮箱失败: ' + error.message);
                 switcher.value = currentUser; // 恢复原选择
             } finally {
-                emailCard.style.opacity = '1';
+                browsePage.style.opacity = '1';
             }
         }
 
@@ -2463,9 +3288,9 @@
             } else {
                 inboxPagination.classList.remove('hidden');
                 inboxPagination.innerHTML = `
-                    <button class="btn btn-secondary" onclick="loadInboxPage(${currentInboxPage - 1})" ${currentInboxPage === 1 ? 'disabled' : ''}>‹</button>
+                    <button class="btn btn-secondary" onclick="loadInboxPage(${currentInboxPage - 1})" ${currentInboxPage === 1 ? 'disabled' : ''}>上一页</button>
                     <span>${currentInboxPage}/${inboxPages}</span>
-                    <button class="btn btn-secondary" onclick="loadInboxPage(${currentInboxPage + 1})" ${currentInboxPage === inboxPages ? 'disabled' : ''}>›</button>
+                    <button class="btn btn-secondary" onclick="loadInboxPage(${currentInboxPage + 1})" ${currentInboxPage === inboxPages ? 'disabled' : ''}>下一页</button>
                 `;
             }
             
@@ -2476,14 +3301,17 @@
             } else {
                 junkPagination.classList.remove('hidden');
                 junkPagination.innerHTML = `
-                    <button class="btn btn-secondary" onclick="loadJunkPage(${currentJunkPage - 1})" ${currentJunkPage === 1 ? 'disabled' : ''}>‹</button>
+                    <button class="btn btn-secondary" onclick="loadJunkPage(${currentJunkPage - 1})" ${currentJunkPage === 1 ? 'disabled' : ''}>上一页</button>
                     <span>${currentJunkPage}/${junkPages}</span>
-                    <button class="btn btn-secondary" onclick="loadJunkPage(${currentJunkPage + 1})" ${currentJunkPage === junkPages ? 'disabled' : ''}>›</button>
+                    <button class="btn btn-secondary" onclick="loadJunkPage(${currentJunkPage + 1})" ${currentJunkPage === junkPages ? 'disabled' : ''}>下一页</button>
                 `;
             }
         }
 
         window.onload = function() {
+            setupAccountListInteractions();
+            applySidebarState();
+
             // 检查管理员认证状态
             if (isPasswordSet()) {
                 showEmailManagement();
@@ -2494,7 +3322,7 @@
         
         // 页面可见性变化时刷新账户选择器
         document.addEventListener('visibilitychange', function() {
-            if (!document.hidden && currentUser && document.getElementById('emailCard').classList.contains('hidden') === false) {
+            if (!document.hidden && currentUser && !document.getElementById('browsePage').classList.contains('hidden')) {
                 loadAccountSwitcher();
             }
         });
