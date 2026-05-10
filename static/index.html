@@ -1265,6 +1265,27 @@
             font-size: 14px;
             margin: 0;
         }
+
+        .batch-parser {
+            display: grid;
+            grid-template-columns: minmax(120px, 180px) minmax(260px, 1fr) minmax(120px, 160px);
+            gap: 12px;
+            padding: 12px;
+            margin: 14px 0;
+            border: 1px solid var(--ui-border);
+            border-radius: 6px;
+            background: #f8faf8;
+        }
+
+        .batch-parser .input-group {
+            margin: 0;
+        }
+
+        .parser-hint {
+            color: #6b7280;
+            font-size: 12px;
+            line-height: 1.5;
+        }
         
         .btn-with-icon {
             display: flex;
@@ -1372,9 +1393,12 @@
         }
 
         body {
-            font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            font-family: "Source Han Sans SC", "Noto Sans CJK SC", "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
             background: var(--ui-bg);
             color: var(--ui-text);
+            font-size: 14px;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: geometricPrecision;
         }
 
         .container {
@@ -1403,6 +1427,7 @@
             border-radius: 6px;
             background: #fff;
             color: #1f2937;
+            font-family: inherit;
         }
 
         input:focus, select:focus, textarea:focus {
@@ -1414,11 +1439,17 @@
             border-radius: 6px;
             border: 1px solid transparent;
             font-size: 13px;
-            font-weight: 600;
+            font-weight: 650;
             padding: 8px 12px;
             margin-right: 4px;
             margin-bottom: 4px;
             transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+        }
+
+        label {
+            color: #2d3d36;
+            font-size: 13px;
+            font-weight: 650;
         }
 
         .btn-primary {
@@ -2105,6 +2136,10 @@
                 gap: 8px;
             }
 
+            .batch-parser {
+                grid-template-columns: 1fr;
+            }
+
             .account-item {
                 grid-template-columns: 24px minmax(0, 1fr) 64px;
                 gap: 8px;
@@ -2193,10 +2228,33 @@
             <section id="batchLogin" class="module-page hidden">
                 <div class="batch-header">
                     <h3>批量验证账户</h3>
-                    <p class="batch-description">每行一个账户，格式：邮箱----密码----刷新令牌----客户端ID</p>
+                    <p class="batch-description">按当前解析规则读取每行账户，默认格式：邮箱---密码---刷新令牌---客户端ID</p>
+                </div>
+                <div class="batch-parser">
+                    <div class="input-group">
+                        <label>分隔符</label>
+                        <input type="text" id="batchDelimiter" value="---" placeholder="---">
+                    </div>
+                    <div class="input-group">
+                        <label>字段顺序</label>
+                        <select id="batchFieldOrder">
+                            <option value="email,password,refresh_token,client_id">邮箱 / 密码 / refresh token / client-id</option>
+                            <option value="email,refresh_token,client_id,password">邮箱 / refresh token / client-id / 密码</option>
+                            <option value="email,refresh_token,client_id">邮箱 / refresh token / client-id</option>
+                            <option value="email,client_id,refresh_token,password">邮箱 / client-id / refresh token / 密码</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>解析选项</label>
+                        <label class="select-all">
+                            <input type="checkbox" id="batchSkipHeader">
+                            <span>忽略首行</span>
+                        </label>
+                    </div>
+                    <div class="parser-hint">密码字段仅用于兼容原始格式，验证时不会提交。</div>
                 </div>
                 <div class="input-group">
-                    <textarea id="batchAccounts" rows="8" placeholder="example@outlook.com----password----refresh_token----client_id"></textarea>
+                    <textarea id="batchAccounts" rows="8" placeholder="example@outlook.com---password---refresh_token---client_id"></textarea>
                 </div>
                 <button class="btn btn-primary" onclick="verifyBatchAccounts()">验证账户</button>
                 <div id="verificationResultList" class="verification-results"></div>
@@ -2712,43 +2770,80 @@
                 return;
             }
 
-            const lines = batchText.split('\n').filter(line => line.trim());
+            const parsed = parseBatchAccounts(batchText);
             const resultList = document.getElementById('verificationResultList');
-            resultList.innerHTML = '<div class="verification-loading"><div class="spinner"></div><p>正在验证账户，请稍候...</p></div>';
             
-            // 准备批量验证的账户列表
-            const accounts = [];
-            for (const line of lines) {
-                const parts = line.split('----').map(p => p.trim());
-                if (parts.length !== 4) continue;
-                
-                const [email, _, refreshToken, clientId] = parts;
-                accounts.push({
-                    email,
-                    refresh_token: refreshToken,
-                    client_id: clientId
-                });
-            }
-            
-            if (accounts.length === 0) {
-                resultList.innerHTML = '<div class="verification-empty"><p>无法解析账户信息，请检查格式</p></div>';
+            if (parsed.accounts.length === 0) {
+                resultList.innerHTML = `<div class="verification-empty"><p>无法解析账户信息，请检查分隔符和字段顺序</p>${renderParseErrors(parsed.errors)}</div>`;
                 return;
             }
+
+            resultList.innerHTML = '<div class="verification-loading"><div class="spinner"></div><p>正在验证账户，请稍候...</p></div>';
             
             try {
                 const response = await makeRequest(`${API_BASE}/accounts/verify`, {
                     method: 'POST',
-                    body: JSON.stringify({ accounts })
+                    body: JSON.stringify({ accounts: parsed.accounts })
                 });
                 
                 if (!response.ok) throw new Error('验证请求失败');
                 
                 const results = await response.json();
                 renderVerificationResult(results);
+                if (parsed.errors.length > 0) {
+                    const warning = document.createElement('div');
+                    warning.className = 'verification-summary all-failed';
+                    warning.innerHTML = `<div class="summary-text"><h4>部分行未解析</h4>${renderParseErrors(parsed.errors)}</div>`;
+                    resultList.prepend(warning);
+                }
                 
             } catch (error) {
                 resultList.innerHTML = `<div class="verification-empty"><p>验证失败: ${error.message}</p></div>`;
             }
+        }
+
+        function parseBatchAccounts(batchText) {
+            const delimiter = document.getElementById('batchDelimiter').value || '---';
+            const fieldOrder = document.getElementById('batchFieldOrder').value.split(',');
+            const skipHeader = document.getElementById('batchSkipHeader').checked;
+            const lines = batchText.split('\n').map(line => line.trim()).filter(Boolean);
+            const sourceLines = skipHeader ? lines.slice(1) : lines;
+            const accounts = [];
+            const errors = [];
+
+            sourceLines.forEach((line, index) => {
+                const lineNumber = (skipHeader ? index + 2 : index + 1);
+                const parts = line.split(delimiter).map(part => part.trim());
+                if (parts.length < fieldOrder.length) {
+                    errors.push(`第 ${lineNumber} 行字段不足`);
+                    return;
+                }
+
+                const record = {};
+                fieldOrder.forEach((field, fieldIndex) => {
+                    record[field] = parts[fieldIndex] || '';
+                });
+
+                if (!record.email || !record.refresh_token || !record.client_id) {
+                    errors.push(`第 ${lineNumber} 行缺少邮箱、refresh token 或 client-id`);
+                    return;
+                }
+
+                accounts.push({
+                    email: record.email,
+                    refresh_token: record.refresh_token,
+                    client_id: record.client_id
+                });
+            });
+
+            return { accounts, errors };
+        }
+
+        function renderParseErrors(errors) {
+            if (!errors.length) return '';
+            const visibleErrors = errors.slice(0, 8).map(error => `<p>${escapeHtml(error)}</p>`).join('');
+            const more = errors.length > 8 ? `<p>还有 ${errors.length - 8} 行未显示</p>` : '';
+            return `<div class="verification-error-message">${visibleErrors}${more}</div>`;
         }
         
         async function importSelectedAccounts() {
