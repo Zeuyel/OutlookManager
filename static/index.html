@@ -1356,15 +1356,19 @@
 
         /* 2026-03-31 从零重构：Sidebar目录 + 主区浏览（shadcn风格） */
         :root {
-            --ui-bg: #f5f6f8;
+            --ui-bg: #eef1f4;
             --ui-surface: #ffffff;
-            --ui-surface-soft: #f8fafc;
-            --ui-border: #e2e8f0;
+            --ui-surface-soft: #f6f8f7;
+            --ui-border: #d8dde3;
             --ui-text: #1f2937;
             --ui-muted: #6b7280;
-            --ui-primary: #2563eb;
-            --ui-primary-hover: #1d4ed8;
+            --ui-primary: #1f4d3a;
+            --ui-primary-hover: #173c2d;
             --ui-danger: #b91c1c;
+            --ui-ink: #17211d;
+            --ui-ink-soft: #22352c;
+            --ui-ink-muted: #a9b7af;
+            --ui-accent: #d7eadf;
         }
 
         body {
@@ -1398,11 +1402,12 @@
             border: 1px solid var(--ui-border);
             border-radius: 6px;
             background: #fff;
+            color: #1f2937;
         }
 
         input:focus, select:focus, textarea:focus {
             border-color: var(--ui-primary);
-            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.14);
+            box-shadow: 0 0 0 2px rgba(31, 77, 58, 0.16);
         }
 
         .btn {
@@ -1431,13 +1436,13 @@
 
         .btn-secondary {
             background: #fff;
-            color: #374151;
+            color: #26372f;
             border-color: var(--ui-border);
         }
 
         .btn-secondary:hover {
-            background: #f9fafb;
-            border-color: #c4ceda;
+            background: #f7faf8;
+            border-color: #bfc9c4;
         }
 
         .btn-danger {
@@ -1509,18 +1514,18 @@
 
         .account-header,
         .account-toolbar {
-            background: var(--ui-surface-soft);
+            background: #f8faf8;
             border: 1px solid var(--ui-border);
             border-radius: 6px;
-            padding: 8px 10px;
+            padding: 10px 12px;
             margin-bottom: 10px;
             box-shadow: none;
         }
 
         .account-count,
         .email-count {
-            background: #eef4ff;
-            color: #1e40af;
+            background: var(--ui-accent);
+            color: #1f4d3a;
             border-radius: 999px;
         }
 
@@ -1542,6 +1547,7 @@
             border: 1px solid var(--ui-border);
             border-radius: 6px;
             box-shadow: none;
+            background: #fff;
         }
 
         #accountManage.module-page {
@@ -1580,7 +1586,7 @@
         }
 
         .account-item:hover {
-            background: #f8fafc;
+            background: #f7faf8;
             border-color: transparent;
         }
 
@@ -1590,8 +1596,8 @@
         }
 
         .account-email:hover {
-            background: #eff6ff;
-            color: #1d4ed8;
+            background: #eef6f1;
+            color: #1f4d3a;
         }
 
         .account-status {
@@ -1621,10 +1627,10 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            border: 1px solid #d7dde5;
+            border: 1px solid #c8d9cf;
             border-radius: 999px;
-            background: #f8fafc;
-            color: #374151;
+            background: #f3f8f5;
+            color: #244234;
             padding: 3px 8px;
             font-size: 12px;
         }
@@ -1641,7 +1647,47 @@
 
         .status-active { background: #ecfdf3; color: #166534; }
         .status-inactive { background: #fef2f2; color: #991b1b; }
-        .status-unknown { background: #f3f4f6; color: #374151; }
+        .status-unknown { background: #eef1f4; color: #374151; }
+
+        .filter-btn.active,
+        .content-tab.active {
+            background: var(--ui-primary);
+            border-color: var(--ui-primary);
+            color: #fff;
+        }
+
+        .filter-btn:hover,
+        .content-tab:hover {
+            border-color: #b7c8bf;
+            color: #1f4d3a;
+        }
+
+        .spinner {
+            border-color: rgba(31, 77, 58, 0.18);
+            border-top-color: var(--ui-primary);
+        }
+
+        .email-list {
+            scrollbar-color: #8aa598 rgba(216, 221, 227, 0.35);
+        }
+
+        .email-list::-webkit-scrollbar-thumb {
+            background: #8aa598;
+            border: 1px solid rgba(255, 255, 255, 0.45);
+        }
+
+        .email-list::-webkit-scrollbar-thumb:hover {
+            background: #6f8e80;
+            box-shadow: none;
+        }
+
+        .column-header h3,
+        .toolbar-left h2,
+        .account-title,
+        .batch-header h3 {
+            color: #17211d;
+            font-weight: 650;
+        }
 
         .panel-hint {
             display: block;
@@ -1667,6 +1713,11 @@
             min-width: 58px;
         }
 
+        .pagination span {
+            color: #66736d;
+            font-size: 12px;
+        }
+
         .verification-summary,
         .verification-header,
         .verification-item {
@@ -1687,12 +1738,13 @@
         }
 
         .app-sidebar {
-            border-right: 1px solid var(--ui-border);
-            background: #f8fafc;
-            padding: 12px 10px;
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            background: var(--ui-ink);
+            color: #f7faf8;
+            padding: 16px 12px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 18px;
         }
 
         .sidebar-top {
@@ -1700,39 +1752,45 @@
             align-items: center;
             justify-content: space-between;
             gap: 8px;
-            padding: 2px 4px;
+            padding: 2px 4px 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
         }
 
         .sidebar-title {
-            font-size: 12px;
-            color: var(--ui-muted);
-            font-weight: 600;
-            letter-spacing: 0.25px;
+            color: #f7faf8;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
         }
 
         .sidebar-toggle {
-            border: 1px solid var(--ui-border);
-            background: #fff;
-            color: #374151;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            background: rgba(255, 255, 255, 0.06);
+            color: #dce5df;
             border-radius: 6px;
             font-size: 12px;
             padding: 4px 8px;
             cursor: pointer;
         }
 
+        .sidebar-toggle:hover {
+            background: rgba(255, 255, 255, 0.11);
+            color: #fff;
+        }
+
         .sidebar-nav {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 6px;
         }
 
         .sidebar-nav-item {
             width: 100%;
             border: 1px solid transparent;
             background: transparent;
-            color: #475569;
+            color: var(--ui-ink-muted);
             border-radius: 6px;
-            padding: 8px 10px;
+            padding: 10px 11px;
             text-align: left;
             font-size: 13px;
             font-weight: 600;
@@ -1741,15 +1799,15 @@
         }
 
         .sidebar-nav-item:hover {
-            background: #edf2f8;
-            border-color: #dbe3ee;
-            color: #1f2937;
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.12);
+            color: #fff;
         }
 
         .sidebar-nav-item.active {
-            background: #e8eefc;
-            border-color: #c9d8f5;
-            color: #1e3a8a;
+            background: #f7faf8;
+            border-color: #f7faf8;
+            color: #17211d;
         }
 
         .nav-short {
@@ -1771,18 +1829,19 @@
         }
 
         .app-main {
-            background: var(--ui-surface);
+            background: var(--ui-bg);
             min-height: 100vh;
-            padding: 12px;
+            padding: 18px;
             overflow: auto;
         }
 
         .module-page {
             border: 1px solid var(--ui-border);
             background: #fff;
-            border-radius: 8px;
-            padding: 12px;
-            min-height: calc(100vh - 24px);
+            border-radius: 6px;
+            padding: 16px;
+            min-height: calc(100vh - 36px);
+            box-shadow: 0 12px 28px rgba(23, 33, 29, 0.05);
         }
 
         .module-page.hidden {
@@ -1799,8 +1858,8 @@
             justify-content: space-between;
             align-items: flex-start;
             gap: 10px;
-            margin: 0 0 12px 0;
-            padding: 0 0 10px 0;
+            margin: 0 0 14px 0;
+            padding: 0 0 14px 0;
             border-bottom: 1px solid var(--ui-border);
             background: transparent;
         }
@@ -1822,10 +1881,10 @@
         }
 
         #browsePage .email-column {
-            background: #fff;
+            background: #fbfcfb;
             border: 1px solid var(--ui-border);
-            border-radius: 8px;
-            padding: 10px;
+            border-radius: 6px;
+            padding: 12px;
             height: 100%;
             min-height: 0;
         }
@@ -1846,8 +1905,8 @@
         }
 
         #browsePage .email-item:hover {
-            border-color: #cfd9e8;
-            background: #f9fbff;
+            border-color: #bfd2c7;
+            background: #f8fbf9;
             transform: none;
         }
 
@@ -1855,8 +1914,8 @@
             width: 28px;
             height: 28px;
             border-radius: 6px;
-            background: #e5e7eb;
-            color: #374151;
+            background: #d7eadf;
+            color: #1f4d3a;
             font-size: 12px;
             box-shadow: none;
         }
