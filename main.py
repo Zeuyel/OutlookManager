@@ -14,7 +14,7 @@ from fastapi import FastAPI, HTTPException, Query, Depends, status
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from email.header import decode_header
 from email.utils import parsedate_to_datetime
 import imaplib
@@ -52,6 +52,12 @@ class AccountCredentials(BaseModel):
 class AccountStatus(BaseModel):
     email: EmailStr
     status: str = "unknown"  # "active", "inactive", "unknown"
+    tags: List[str] = Field(default_factory=list)
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
+
+class AccountTagUpdateRequest(BaseModel):
+    tags: List[str] = Field(default_factory=list)
 
 class AccountDeleteRequest(BaseModel):
     emails: List[EmailStr]
@@ -198,6 +204,50 @@ def extract_email_content(email_message: email.message.EmailMessage) -> tuple[st
 # 凭证管理模块
 # ============================================================================
 
+def normalize_tags(tags: Any) -> List[str]:
+    """Normalize user-supplied tag values for storage and display."""
+    if isinstance(tags, str):
+        raw_tags = re.split(r"[,，\s]+", tags)
+    elif isinstance(tags, list):
+        raw_tags = tags
+    else:
+        raw_tags = []
+
+    normalized = []
+    seen = set()
+    for tag in raw_tags:
+        value = str(tag).strip()
+        if not value or value in seen:
+            continue
+        normalized.append(value[:32])
+        seen.add(value)
+    return normalized[:12]
+
+
+def normalize_account_record(email_id: str, account_data: Dict[str, Any], default_created_at: str) -> tuple[Dict[str, Any], bool]:
+    """Keep old accounts.json records readable while adding metadata fields."""
+    changed = False
+    normalized = dict(account_data)
+
+    if "created_at" not in normalized:
+        normalized["created_at"] = default_created_at
+        changed = True
+
+    if "updated_at" not in normalized:
+        normalized["updated_at"] = normalized["created_at"]
+        changed = True
+
+    tags = normalize_tags(normalized.get("tags", []))
+    if tags != normalized.get("tags", []):
+        normalized["tags"] = tags
+        changed = True
+    elif "tags" not in normalized:
+        normalized["tags"] = []
+        changed = True
+
+    return normalized, changed
+
+
 async def get_account_credentials(email_id: str) -> AccountCredentials:
     """从accounts.json获取账户凭证"""
     try:
@@ -223,7 +273,7 @@ async def get_account_credentials(email_id: str) -> AccountCredentials:
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
-async def get_all_accounts() -> Dict[str, Dict[str, str]]:
+async def get_all_accounts() -> Dict[str, Dict[str, Any]]:
     """获取所有账户信息（优化IO）"""
     try:
         if not Path(ACCOUNTS_FILE).exists():
@@ -235,11 +285,25 @@ async def get_all_accounts() -> Dict[str, Dict[str, str]]:
         logger.error(f"Error getting all accounts: {e}")
         return {}
 
-def _read_accounts_sync() -> Dict[str, Dict[str, str]]:
+def _read_accounts_sync() -> Dict[str, Dict[str, Any]]:
     """同步读取函数"""
     try:
-        with open(ACCOUNTS_FILE, 'r', encoding='utf-8') as f:
-            return json.load(f)
+        accounts_path = Path(ACCOUNTS_FILE)
+        with open(accounts_path, 'r', encoding='utf-8') as f:
+            accounts = json.load(f)
+
+        default_created_at = datetime.fromtimestamp(accounts_path.stat().st_mtime).isoformat()
+        has_changes = False
+        for email_id, account_data in list(accounts.items()):
+            normalized, changed = normalize_account_record(email_id, account_data, default_created_at)
+            accounts[email_id] = normalized
+            has_changes = has_changes or changed
+
+        if has_changes:
+            with open(accounts_path, 'w', encoding='utf-8') as f:
+                json.dump(accounts, f, indent=2, ensure_ascii=False)
+
+        return accounts
     except json.JSONDecodeError:
         logger.error("Failed to decode accounts file")
         return {}
@@ -263,10 +327,15 @@ def _save_multiple_accounts_sync(credentials_list: List[AccountCredentials]):
             accounts = json.load(f)
     
     # 批量更新账户信息
+    now = datetime.now().isoformat()
     for credentials in credentials_list:
+        existing = accounts.get(credentials.email, {})
         accounts[credentials.email] = {
             'refresh_token': credentials.refresh_token,
-            'client_id': credentials.client_id
+            'client_id': credentials.client_id,
+            'tags': normalize_tags(existing.get('tags', [])),
+            'created_at': existing.get('created_at') or now,
+            'updated_at': now
         }
     
     # 直接写入文件（用户要求移除原子写入）
@@ -290,9 +359,14 @@ def _save_account_sync(email_id: str, credentials: AccountCredentials):
         with open(ACCOUNTS_FILE, 'r', encoding='utf-8') as f:
             accounts = json.load(f)
     
+    now = datetime.now().isoformat()
+    existing = accounts.get(email_id, {})
     accounts[email_id] = {
         'refresh_token': credentials.refresh_token,
-        'client_id': credentials.client_id
+        'client_id': credentials.client_id,
+        'tags': normalize_tags(existing.get('tags', [])),
+        'created_at': existing.get('created_at') or now,
+        'updated_at': now
     }
     
     # 直接写入文件（用户要求移除原子写入）
@@ -330,6 +404,45 @@ async def delete_accounts(emails: List[str]) -> Dict[str, int]:
     except Exception as e:
         logger.error(f"Error deleting accounts: {e}")
         raise HTTPException(status_code=500, detail="Failed to delete accounts")
+
+
+async def update_account_tags(email_id: str, tags: List[str]) -> Dict[str, Any]:
+    """Update account tags without changing credentials."""
+    try:
+        return await asyncio.to_thread(_update_account_tags_sync, email_id, tags)
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating account tags: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update account tags")
+
+
+def _update_account_tags_sync(email_id: str, tags: List[str]) -> Dict[str, Any]:
+    accounts_path = Path(ACCOUNTS_FILE)
+    if not accounts_path.exists():
+        raise HTTPException(status_code=404, detail="Account not found")
+
+    with open(accounts_path, 'r', encoding='utf-8') as f:
+        accounts = json.load(f)
+
+    if email_id not in accounts:
+        raise HTTPException(status_code=404, detail="Account not found")
+
+    default_created_at = datetime.fromtimestamp(accounts_path.stat().st_mtime).isoformat()
+    normalized, _ = normalize_account_record(email_id, accounts[email_id], default_created_at)
+    normalized["tags"] = normalize_tags(tags)
+    normalized["updated_at"] = datetime.now().isoformat()
+    accounts[email_id] = normalized
+
+    with open(accounts_path, 'w', encoding='utf-8') as f:
+        json.dump(accounts, f, indent=2, ensure_ascii=False)
+
+    return {
+        "email": email_id,
+        "tags": normalized["tags"],
+        "created_at": normalized["created_at"],
+        "updated_at": normalized["updated_at"]
+    }
 
 
 # ============================================================================
@@ -856,7 +969,15 @@ async def get_accounts(
     
     if not check_status:
         # 仅返回邮箱列表，不检查状态
-        return [AccountStatus(email=email) for email in accounts.keys()]
+        return [
+            AccountStatus(
+                email=email,
+                tags=account_data.get("tags", []),
+                created_at=account_data.get("created_at"),
+                updated_at=account_data.get("updated_at")
+            )
+            for email, account_data in accounts.items()
+        ]
     
     # 并行检查所有账户的活性
     result = []
@@ -876,7 +997,14 @@ async def get_accounts(
     for email, task in tasks:
         is_active = await task
         status = "active" if is_active else "inactive"
-        result.append(AccountStatus(email=email, status=status))
+        account_data = accounts[email]
+        result.append(AccountStatus(
+            email=email,
+            status=status,
+            tags=account_data.get("tags", []),
+            created_at=account_data.get("created_at"),
+            updated_at=account_data.get("updated_at")
+        ))
     
     return result
 
@@ -1060,6 +1188,15 @@ async def import_verified_accounts(
                 message=f"导入失败: {str(e)}"
             ))
         return results
+
+@app.patch("/accounts/{email_id}/tags")
+async def update_account_tags_api(
+    email_id: EmailStr,
+    request: AccountTagUpdateRequest,
+    current_admin: bool = Depends(get_current_admin)
+):
+    """更新账户标签。"""
+    return await update_account_tags(str(email_id), request.tags)
 
 @app.delete("/accounts")
 async def delete_multiple_accounts(

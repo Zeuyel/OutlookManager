@@ -1544,12 +1544,35 @@
             box-shadow: none;
         }
 
+        #accountManage.module-page {
+            display: flex;
+            flex-direction: column;
+            min-height: calc(100vh - 24px);
+        }
+
+        #accountManage.module-page.hidden {
+            display: none;
+        }
+
+        #accountManage .account-list {
+            flex: 1;
+            min-height: 0;
+            max-height: none;
+            margin-bottom: 10px;
+        }
+
         .account-item {
-            background: #fff;
-            border-bottom: 1px solid #e6ebf2;
+            display: grid;
+            grid-template-columns: 28px minmax(220px, 1.5fr) minmax(180px, 1fr) 72px 76px;
+            gap: 12px;
+            align-items: center;
             border-radius: 0;
             animation: none;
             transition: background-color 0.12s ease;
+        }
+
+        .account-item .account-checkbox {
+            margin: 0;
         }
 
         .account-item:nth-child(even) {
@@ -1574,6 +1597,46 @@
         .account-status {
             font-size: 11px;
             min-width: 54px;
+        }
+
+        .account-primary {
+            min-width: 0;
+        }
+
+        .account-meta {
+            margin-top: 4px;
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        .account-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            min-width: 0;
+        }
+
+        .account-tag {
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            border: 1px solid #d7dde5;
+            border-radius: 999px;
+            background: #f8fafc;
+            color: #374151;
+            padding: 3px 8px;
+            font-size: 12px;
+        }
+
+        .account-tag-empty {
+            color: #9ca3af;
+            font-size: 12px;
+        }
+
+        .account-tag-action {
+            margin: 0;
+            white-space: nowrap;
         }
 
         .status-active { background: #ecfdf3; color: #166534; }
@@ -1976,6 +2039,23 @@
                 flex-wrap: wrap;
             }
 
+            .account-header,
+            .account-toolbar {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .account-item {
+                grid-template-columns: 24px minmax(0, 1fr) 64px;
+                gap: 8px;
+            }
+
+            .account-tags,
+            .account-tag-action {
+                grid-column: 2 / 4;
+            }
+
             .search-container {
                 width: 100%;
             }
@@ -2206,6 +2286,28 @@
                 console.error('Date formatting error:', error, 'Original date:', dateString);
                 return '时间解析失败';
             }
+        }
+
+        function formatAccountDate(dateString) {
+            if (!dateString) return '未知';
+            const date = new Date(dateString);
+            if (Number.isNaN(date.getTime())) return '未知';
+            return date.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function normalizeTagText(value) {
+            return String(value || '')
+                .split(/[,，\s]+/)
+                .map(tag => tag.trim())
+                .filter(Boolean)
+                .filter((tag, index, tags) => tags.indexOf(tag) === index)
+                .slice(0, 12);
         }
 
         function showError(msg) {
@@ -2756,6 +2858,13 @@
             
             accounts.forEach((account, index) => {
                 const safeEmail = escapeHtml(account.email);
+                const tags = Array.isArray(account.tags) ? account.tags : [];
+                const safeTags = tags.map(tag => escapeHtml(tag));
+                const tagsText = safeTags.join(' ');
+                const tagsHtml = safeTags.length > 0
+                    ? safeTags.map(tag => `<span class="account-tag" title="${tag}">${tag}</span>`).join('')
+                    : '<span class="account-tag-empty">未设置标签</span>';
+                const joinedAt = formatAccountDate(account.created_at);
                 const statusClass = account.status === 'active' ? 'status-active' : 
                                    account.status === 'inactive' ? 'status-inactive' : 'status-unknown';
                 const statusText = account.status === 'active' ? '有效' : 
@@ -2765,10 +2874,15 @@
                 const delay = index * 50;
                 
                 html += `
-                <div class="account-item" data-email="${safeEmail}" data-status="${account.status}" style="animation-delay: ${delay}ms;">
+                <div class="account-item" data-email="${safeEmail}" data-status="${account.status}" data-tags="${tagsText}" style="animation-delay: ${delay}ms;">
                     <input type="checkbox" class="account-checkbox" data-email="${safeEmail}">
-                    <span class="account-email account-email-action" data-email="${safeEmail}" role="button" tabindex="0">${safeEmail}</span>
+                    <div class="account-primary">
+                        <span class="account-email account-email-action" data-email="${safeEmail}" role="button" tabindex="0">${safeEmail}</span>
+                        <div class="account-meta">加入时间：${joinedAt}</div>
+                    </div>
+                    <div class="account-tags">${tagsHtml}</div>
                     <span class="account-status ${statusClass}">${statusText}</span>
+                    <button class="btn btn-secondary account-tag-action" onclick="editAccountTags('${safeEmail}')">编辑标签</button>
                 </div>
                 `;
             });
@@ -2780,6 +2894,27 @@
             document.getElementById('selectAllAccounts').checked = false;
             updateAccountStats();
         }
+
+        async function editAccountTags(email) {
+            const item = findAccountItemByEmail(email);
+            const currentTags = item ? (item.getAttribute('data-tags') || '') : '';
+            const input = prompt('请输入标签，多个标签用逗号或空格分隔', currentTags);
+            if (input === null) return;
+
+            const tags = normalizeTagText(input);
+            try {
+                const response = await makeRequest(`${API_BASE}/accounts/${encodeURIComponent(email)}/tags`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ tags })
+                });
+
+                if (!response.ok) throw new Error('更新标签失败');
+                showSuccess('标签已更新');
+                await loadAccountList(false);
+            } catch (error) {
+                showError('更新标签失败: ' + error.message);
+            }
+        }
         
         function filterAccounts() {
             const searchTerm = document.getElementById('accountSearch').value.toLowerCase();
@@ -2787,7 +2922,8 @@
             
             accountItems.forEach(item => {
                 const email = item.getAttribute('data-email').toLowerCase();
-                if (email.includes(searchTerm)) {
+                const tags = (item.getAttribute('data-tags') || '').toLowerCase();
+                if (email.includes(searchTerm) || tags.includes(searchTerm)) {
                     item.classList.remove('filtered');
                 } else {
                     item.classList.add('filtered');
