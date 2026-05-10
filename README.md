@@ -1,5 +1,5 @@
-# 📨 Outlook Manager
-> **outlook邮件管理服务** · 现代化OAuth2认证 · 一键Docker部署
+# Outlook Manager
+> Outlook 邮件管理服务 · OAuth2 认证 · 企业后台式账户与邮件管理 · Docker 部署
 
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-00a393?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
 [![Python](https://img.shields.io/badge/Python-3.9+-3776ab?style=flat-square&logo=python&logoColor=white)](https://python.org/)
@@ -9,7 +9,16 @@
 ---
 
 
-## 📈 更新日志
+## 更新日志
+
+### v2.4.0 (2026-05-10) - 后台界面重构与账户管理增强
+
+- **独立管理员登录页** - 登录页与后台工作台分离，视觉风格统一。
+- **传统后台布局** - 侧边栏目录 + 主内容区，支持侧边栏折叠。
+- **账户标签** - 账户支持 tag 标记，列表可按邮箱或 tag 搜索。
+- **账户元数据** - 账户列表显示加入时间、状态、标签等信息。
+- **自定义批量解析器** - 批量验证支持自定义分隔符、字段顺序和忽略表头。
+- **主页面视觉统一** - 深色侧栏、灰色工作区、紧凑表格和登录页保持同一套风格。
 
 ### v2.3.0 (2025-07-03) - Docker部署权限问题修复
 
@@ -74,13 +83,13 @@
 
 ---
 
-## 🚀 快速开始
+## 快速开始
 
 ### 方式一：一键部署（推荐）
 
 ```bash
 # 🎯 最快启动
-git clone https://github.com/oDaiSuno/OutlookManager.git && cd OutlookManager
+git clone git@github.com:Zeuyel/OutlookManager.git && cd OutlookManager
 docker compose up -d
 
 # 🌐 访问服务
@@ -103,15 +112,15 @@ python main.py
 
 ---
 
-## 🎁 核心特性
+## 核心特性
 
 <div align="center">
 
-| 🔐 **企业级安全** | ⚡ **极致性能** | 🎨 **现代化UI** | 🐳 **云原生** |
+| 🔐 **访问控制** | ⚡ **性能优化** | 🎨 **后台 UI** | 🐳 **容器部署** |
 |:---:|:---:|:---:|:---:|
-| 极简认证体系 | 异步处理 | 响应式设计 | Docker容器化 |
-| Bearer密码验证 | 智能分页 | 管理员界面 | 一键部署 |
-| OAuth2认证 | 邮件缓存 | 多主题支持 | 环境变量配置 |
+| 管理员密码 | 异步处理 | 三栏后台布局 | Docker Compose |
+| Bearer 验证 | 智能分页 | 独立登录页 | 健康检查 |
+| OAuth2 邮箱认证 | 邮件缓存 | 可折叠侧边栏 | 环境变量配置 |
 
 </div>
 
@@ -133,6 +142,15 @@ python main.py
 - ✅ **快速切换** - 邮件界面直接切换多个邮箱账户
 - ✅ **邮件缓存** - 5分钟智能缓存提升加载速度
 
+#### 👥 账户管理
+- ✅ **单账户登录** - 单个 Outlook 账户验证并保存
+- ✅ **批量验证** - 多账户并行验证并选择性导入
+- ✅ **自定义批量解析** - 分隔符、字段顺序、表头跳过可配置
+- ✅ **账户标签** - 支持为账户添加多个 tag
+- ✅ **加入时间** - 账户列表展示创建时间和更新时间
+- ✅ **状态筛选** - 按有效、无效、未知筛选账户
+- ✅ **搜索筛选** - 支持按邮箱和 tag 搜索
+
 #### 🚀 技术特性
 - ✅ **异步高性能** - 基于FastAPI的现代化架构
 - ✅ **RESTful API** - 标准化接口设计
@@ -143,7 +161,10 @@ python main.py
 - ✅ **原子文件操作** - 数据安全保障
 
 #### 🎨 用户体验
-- ✅ **响应式设计** - 完美适配桌面和移动设备
+- ✅ **独立登录页** - 登录流程和后台工作区分离
+- ✅ **三栏后台布局** - 侧边栏目录、主工作区、邮件浏览区清晰分层
+- ✅ **可折叠侧边栏** - 适合长时间后台操作
+- ✅ **响应式设计** - 适配桌面和移动设备
 - ✅ **实时状态** - 账户活性状态智能检测
 - ✅ **批量操作** - 支持批量添加、验证、删除账户
 - ✅ **搜索筛选** - 账户搜索和状态筛选
@@ -264,6 +285,29 @@ curl "http://localhost:8000/accounts" \
 # 检查活性状态
 curl "http://localhost:8000/accounts?check_status=true" \
   -H "Authorization: Bearer admin123"
+```
+
+**账户列表响应字段**:
+```json
+[
+  {
+    "email": "user@example.com",
+    "status": "unknown",
+    "tags": ["客户", "长期"],
+    "created_at": "2026-05-10T01:30:00",
+    "updated_at": "2026-05-10T01:45:00"
+  }
+]
+```
+
+**更新账户标签**:
+```bash
+curl -X PATCH "http://localhost:8000/accounts/user@example.com/tags" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer admin123" \
+  -d '{
+    "tags": ["客户", "长期"]
+  }'
 ```
 
 **批量验证账户**:
@@ -396,10 +440,24 @@ curl "http://localhost:8000/emails/your_email@outlook.com/INBOX-12345" \
 - **实时状态** - 账户活性状态实时检测
 
 ### 📋 批量登录功能
-- **格式验证** - 智能解析批量账户信息
+- **自定义解析器** - 支持分隔符、字段顺序和忽略表头
 - **并行验证** - 多账户并行验证提升效率
 - **选择性导入** - 仅导入验证成功的账户
 - **详细反馈** - 每个账户的验证结果展示
+
+默认解析格式：
+
+```text
+邮箱---密码---refresh token---client-id
+```
+
+可在前端批量登录页面调整：
+
+- 分隔符：默认 `---`，可改为 `----`、`,`、`|` 等。
+- 字段顺序：默认 `邮箱 / 密码 / refresh token / client-id`。
+- 忽略首行：适用于带表头的数据。
+
+密码字段仅用于兼容原始数据格式，后端验证时不会提交密码。
 
 ---
 
@@ -429,7 +487,9 @@ ADMIN_PASSWORD=admin123                    # 管理员密码
 volumes:
   - ./data:/app/data                    # 应用数据
   - ./accounts.json:/app/accounts.json  # 账户凭证
-```### 🛠️ 管理命令
+```
+
+### 🛠️ 管理命令
 
 ```bash
 # 查看状态
@@ -445,9 +505,3 @@ docker compose pull && docker compose up -d
 docker compose down -v && docker compose up -d
 ```
 ---
-
-**⭐ 如果这个项目对你有帮助，请给我们一个星标！**
-
-[![Star History Chart](https://api.star-history.com/svg?repos=oDaiSuno/OutlookManager&type=Date)](https://www.star-history.com/#oDaiSuno/OutlookManager&Date)
-
-
